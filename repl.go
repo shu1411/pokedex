@@ -2,16 +2,17 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
-	"fmt"
 
 	"github.com/shu1411/pokedex/internal/pokeapi"
 )
 
 type config struct {
-	pokeapiClient		 pokeapi.Client
-	nextLocationsURL	 *string
+	caughtPokemon        map[string]pokeapi.Pokemon
+	pokeapiClient        pokeapi.Client
+	nextLocationsURL     *string
 	previousLocationsURL *string
 }
 
@@ -27,10 +28,10 @@ func startRepl(cfg *config) {
 		if len(words) == 0 {
 			continue
 		}
-		
+
 		cmdName := words[0]
 		args := []string{}
-		if len(words) > 1{
+		if len(words) > 1 {
 			args = words[1:]
 		}
 
@@ -55,37 +56,42 @@ func cleanInput(text string) []string {
 }
 
 type cliCommand struct {
-	name		string
+	name        string
 	description string
-	callback	func(*config, ...string) error
+	callback    func(*config, ...string) error
 }
 
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"help": {
-			name:		 "help",
+			name:        "help",
 			description: "Displays a help message",
-			callback:	 commandHelp,
+			callback:    commandHelp,
 		},
 		"map": {
-			name:		 "map",
+			name:        "map",
 			description: "Get the next page of locations",
-			callback: 	 commandMapNext,	
+			callback:    commandMapNext,
 		},
 		"mapb": {
-			name:		 "mapb",
+			name:        "mapb",
 			description: "Get the previous page of locations",
-			callback: 	 commandMapBack,
+			callback:    commandMapBack,
 		},
 		"exit": {
-			name:		 "exit",
+			name:        "exit",
 			description: "Exit the Pokedex",
-			callback: 	 commandExit,	
+			callback:    commandExit,
 		},
 		"explore": {
-			name: 		 "explore",
-			description: "list pokemon that can be caught here",
-			callback: 	 commandExplore,	
+			name:        "explore <location_name>",
+			description: "List pokemon that can be caught here",
+			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch <pokemon_name>",
+			description: "Try to catch a Pokemon",
+			callback:    commandCatch,
 		},
 	}
 }
